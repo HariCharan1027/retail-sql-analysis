@@ -1,6 +1,5 @@
 # Data files
 data/*.db
-data/*.xls
 data/*.xlsx
 data/*.csv
 
