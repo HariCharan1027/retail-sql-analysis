@@ -2,239 +2,328 @@
 -- RETAIL SALES SQL ANALYSIS
 -- ============================================================
 
--- 1. Overall performance
+
+-- ============================================================
+-- 1. BASIC DATASET OVERVIEW
+-- ============================================================
+
 SELECT
-    ROUND(SUM(Sales), 2) AS total_sales,
-    ROUND(SUM(Profit), 2) AS total_profit,
-    SUM(Quantity) AS total_units,
+    COUNT(*) AS total_rows
+FROM sales;
+
+SELECT
     COUNT(DISTINCT "Order ID") AS total_orders,
-    ROUND(SUM(Sales) / COUNT(DISTINCT "Order ID"), 2) AS average_order_value,
-    ROUND(SUM(Profit) / SUM(Sales) * 100, 2) AS profit_margin_percent
+    COUNT(DISTINCT "Customer ID") AS unique_customers,
+    COUNT(DISTINCT "Product ID") AS unique_products
 FROM sales;
 
 
--- 2. Category performance
+-- ============================================================
+-- 2. DATE RANGE
+-- ============================================================
+
+SELECT
+    MIN("Order Date") AS first_order_date,
+    MAX("Order Date") AS last_order_date
+FROM sales;
+
+
+-- ============================================================
+-- 3. KEY BUSINESS KPIs
+-- ============================================================
+
+SELECT
+    ROUND(SUM(Sales), 2) AS total_sales,
+    ROUND(SUM(Profit), 2) AS total_profit,
+    SUM(Quantity) AS total_units_sold,
+    COUNT(DISTINCT "Order ID") AS total_orders,
+    ROUND(
+        SUM(Sales) / COUNT(DISTINCT "Order ID"),
+        2
+    ) AS average_order_value,
+    ROUND(
+        SUM(Profit) * 100.0 / SUM(Sales),
+        2
+    ) AS profit_margin_percentage
+FROM sales;
+
+
+-- ============================================================
+-- 4. SALES BY CATEGORY
+-- ============================================================
+
 SELECT
     Category,
     ROUND(SUM(Sales), 2) AS total_sales,
     ROUND(SUM(Profit), 2) AS total_profit,
-    ROUND(SUM(Profit) / SUM(Sales) * 100, 2) AS profit_margin_percent
+    SUM(Quantity) AS units_sold,
+    ROUND(
+        SUM(Profit) * 100.0 / SUM(Sales),
+        2
+    ) AS profit_margin_percentage
 FROM sales
 GROUP BY Category
-ORDER BY total_profit DESC;
+ORDER BY total_sales DESC;
 
 
--- 3. Sub-category performance
+-- ============================================================
+-- 5. SALES BY SUB-CATEGORY
+-- ============================================================
+
+SELECT
+    Category,
+    "Sub-Category",
+    ROUND(SUM(Sales), 2) AS total_sales,
+    ROUND(SUM(Profit), 2) AS total_profit,
+    SUM(Quantity) AS units_sold,
+    ROUND(
+        SUM(Profit) * 100.0 / SUM(Sales),
+        2
+    ) AS profit_margin_percentage
+FROM sales
+GROUP BY Category, "Sub-Category"
+ORDER BY total_sales DESC;
+
+
+-- ============================================================
+-- 6. MOST PROFITABLE SUB-CATEGORIES
+-- ============================================================
+
 SELECT
     "Sub-Category",
     ROUND(SUM(Sales), 2) AS total_sales,
     ROUND(SUM(Profit), 2) AS total_profit,
-    ROUND(SUM(Profit) / SUM(Sales) * 100, 2) AS profit_margin_percent
+    ROUND(
+        SUM(Profit) * 100.0 / SUM(Sales),
+        2
+    ) AS profit_margin_percentage
 FROM sales
 GROUP BY "Sub-Category"
 ORDER BY total_profit DESC;
 
 
--- 4. Top 10 most profitable products
+-- ============================================================
+-- 7. LOSS-MAKING SUB-CATEGORIES
+-- ============================================================
+
 SELECT
-    "Product Name",
+    "Sub-Category",
     ROUND(SUM(Sales), 2) AS total_sales,
     ROUND(SUM(Profit), 2) AS total_profit,
-    SUM(Quantity) AS units_sold
+    ROUND(
+        SUM(Profit) * 100.0 / SUM(Sales),
+        2
+    ) AS profit_margin_percentage
 FROM sales
-GROUP BY "Product Name"
+GROUP BY "Sub-Category"
+HAVING SUM(Profit) < 0
+ORDER BY total_profit ASC;
+
+
+-- ============================================================
+-- 8. TOP 10 PRODUCTS BY SALES
+-- ============================================================
+
+SELECT
+    "Product ID",
+    "Product Name",
+    ROUND(SUM(Sales), 2) AS total_sales,
+    ROUND(SUM(Profit), 2) AS total_profit
+FROM sales
+GROUP BY "Product ID", "Product Name"
+ORDER BY total_sales DESC
+LIMIT 10;
+
+
+-- ============================================================
+-- 9. TOP 10 PRODUCTS BY PROFIT
+-- ============================================================
+
+SELECT
+    "Product ID",
+    "Product Name",
+    ROUND(SUM(Sales), 2) AS total_sales,
+    ROUND(SUM(Profit), 2) AS total_profit
+FROM sales
+GROUP BY "Product ID", "Product Name"
 ORDER BY total_profit DESC
 LIMIT 10;
 
 
--- 5. Top 10 loss-making products
+-- ============================================================
+-- 10. WORST 10 PRODUCTS BY PROFIT
+-- ============================================================
+
 SELECT
+    "Product ID",
     "Product Name",
     ROUND(SUM(Sales), 2) AS total_sales,
-    ROUND(SUM(Profit), 2) AS total_profit,
-    SUM(Quantity) AS units_sold
+    ROUND(SUM(Profit), 2) AS total_profit
 FROM sales
-GROUP BY "Product Name"
+GROUP BY "Product ID", "Product Name"
 ORDER BY total_profit ASC
 LIMIT 10;
 
 
--- 6. Top 10 customers by profit
+-- ============================================================
+-- 11. TOP CUSTOMERS BY SALES
+-- ============================================================
+
 SELECT
+    "Customer ID",
     "Customer Name",
     ROUND(SUM(Sales), 2) AS total_sales,
     ROUND(SUM(Profit), 2) AS total_profit,
     COUNT(DISTINCT "Order ID") AS total_orders
 FROM sales
-GROUP BY "Customer Name"
-ORDER BY total_profit DESC
+GROUP BY "Customer ID", "Customer Name"
+ORDER BY total_sales DESC
 LIMIT 10;
 
 
--- 7. Bottom 10 customers by profit
+-- ============================================================
+-- 12. TOP CUSTOMERS BY PROFIT
+-- ============================================================
+
 SELECT
+    "Customer ID",
     "Customer Name",
     ROUND(SUM(Sales), 2) AS total_sales,
     ROUND(SUM(Profit), 2) AS total_profit,
     COUNT(DISTINCT "Order ID") AS total_orders
 FROM sales
-GROUP BY "Customer Name"
-ORDER BY total_profit ASC
+GROUP BY "Customer ID", "Customer Name"
+ORDER BY total_profit DESC
 LIMIT 10;
 
 
--- 8. Regional performance
+-- ============================================================
+-- 13. SALES BY REGION
+-- ============================================================
+
 SELECT
     Region,
     ROUND(SUM(Sales), 2) AS total_sales,
     ROUND(SUM(Profit), 2) AS total_profit,
-    COUNT(DISTINCT "Order ID") AS total_orders,
-    ROUND(SUM(Profit) / SUM(Sales) * 100, 2) AS profit_margin_percent
-FROM sales
-GROUP BY Region
-ORDER BY total_profit DESC;
-
-
--- 9. Discount impact
-SELECT
-    Discount,
-    ROUND(SUM(Sales), 2) AS total_sales,
-    ROUND(SUM(Profit), 2) AS total_profit,
-    ROUND(SUM(Profit) / NULLIF(SUM(Sales), 0) * 100, 2)
-        AS profit_margin_percent
-FROM sales
-GROUP BY Discount
-ORDER BY Discount;
-
-
--- 10. Shipping method usage
-SELECT
-    "Ship Mode",
-    COUNT(*) AS shipment_records,
+    SUM(Quantity) AS units_sold,
     COUNT(DISTINCT "Order ID") AS total_orders
 FROM sales
+GROUP BY Region
+ORDER BY total_sales DESC;
+
+
+-- ============================================================
+-- 14. SALES BY STATE
+-- ============================================================
+
+SELECT
+    "State/Province",
+    ROUND(SUM(Sales), 2) AS total_sales,
+    ROUND(SUM(Profit), 2) AS total_profit,
+    COUNT(DISTINCT "Order ID") AS total_orders
+FROM sales
+GROUP BY "State/Province"
+ORDER BY total_sales DESC
+LIMIT 20;
+
+
+-- ============================================================
+-- 15. SALES BY CITY
+-- ============================================================
+
+SELECT
+    City,
+    ROUND(SUM(Sales), 2) AS total_sales,
+    ROUND(SUM(Profit), 2) AS total_profit
+FROM sales
+GROUP BY City
+ORDER BY total_sales DESC
+LIMIT 20;
+
+
+-- ============================================================
+-- 16. SALES BY COUNTRY / REGION
+-- ============================================================
+
+SELECT
+    "Country/Region",
+    ROUND(SUM(Sales), 2) AS total_sales,
+    ROUND(SUM(Profit), 2) AS total_profit,
+    COUNT(DISTINCT "Order ID") AS total_orders
+FROM sales
+GROUP BY "Country/Region"
+ORDER BY total_sales DESC;
+
+
+-- ============================================================
+-- 17. SALES BY CUSTOMER SEGMENT
+-- ============================================================
+
+SELECT
+    Segment,
+    ROUND(SUM(Sales), 2) AS total_sales,
+    ROUND(SUM(Profit), 2) AS total_profit,
+    COUNT(DISTINCT "Customer ID") AS customers,
+    COUNT(DISTINCT "Order ID") AS orders
+FROM sales
+GROUP BY Segment
+ORDER BY total_sales DESC;
+
+
+-- ============================================================
+-- 18. SALES BY SHIP MODE
+-- ============================================================
+
+SELECT
+    "Ship Mode",
+    COUNT(DISTINCT "Order ID") AS orders,
+    ROUND(SUM(Sales), 2) AS total_sales,
+    ROUND(SUM(Profit), 2) AS total_profit
+FROM sales
 GROUP BY "Ship Mode"
-ORDER BY total_orders DESC;
+ORDER BY total_sales DESC;
 
 
--- 11. Average shipping time
+-- ============================================================
+-- 19. AVERAGE SHIPPING TIME
+-- ============================================================
+
 SELECT
     "Ship Mode",
     ROUND(
         AVG(
             julianday("Ship Date") -
             julianday("Order Date")
-        ), 2
+        ),
+        2
     ) AS average_shipping_days
 FROM sales
 GROUP BY "Ship Mode"
 ORDER BY average_shipping_days;
 
 
--- 12. Monthly sales and profit
+-- ============================================================
+-- 20. DISCOUNT ANALYSIS
+-- ============================================================
+
 SELECT
-    strftime('%Y-%m', "Order Date") AS month,
+    ROUND(Discount, 2) AS discount_rate,
+    COUNT(*) AS transactions,
     ROUND(SUM(Sales), 2) AS total_sales,
     ROUND(SUM(Profit), 2) AS total_profit,
-    COUNT(DISTINCT "Order ID") AS total_orders
-FROM sales
-GROUP BY month
-ORDER BY month;
-
-
--- 13. Highest sales month
-SELECT
-    strftime('%Y-%m', "Order Date") AS month,
-    ROUND(SUM(Sales), 2) AS total_sales
-FROM sales
-GROUP BY month
-ORDER BY total_sales DESC
-LIMIT 1;
-
-
--- 14. Lowest sales month
-SELECT
-    strftime('%Y-%m', "Order Date") AS month,
-    ROUND(SUM(Sales), 2) AS total_sales
-FROM sales
-GROUP BY month
-ORDER BY total_sales ASC
-LIMIT 1;
-
-
--- 15. Highest profit month
-SELECT
-    strftime('%Y-%m', "Order Date") AS month,
-    ROUND(SUM(Profit), 2) AS total_profit
-FROM sales
-GROUP BY month
-ORDER BY total_profit DESC
-LIMIT 1;
-
-
--- 16. Lowest profit month
-SELECT
-    strftime('%Y-%m', "Order Date") AS month,
-    ROUND(SUM(Profit), 2) AS total_profit
-FROM sales
-GROUP BY month
-ORDER BY total_profit ASC
-LIMIT 1;
-
-
--- 17. Month-over-month sales
-WITH monthly_sales AS (
-    SELECT
-        strftime('%Y-%m', "Order Date") AS month,
-        ROUND(SUM(Sales), 2) AS total_sales
-    FROM sales
-    GROUP BY month
-)
-
-SELECT
-    month,
-    total_sales,
-    LAG(total_sales) OVER (
-        ORDER BY month
-    ) AS previous_month_sales,
     ROUND(
-        (
-            total_sales -
-            LAG(total_sales) OVER (ORDER BY month)
-        )
-        / NULLIF(
-            LAG(total_sales) OVER (ORDER BY month),
-            0
-        ) * 100,
+        SUM(Profit) * 100.0 / SUM(Sales),
         2
-    ) AS month_over_month_growth_percent
-FROM monthly_sales
-ORDER BY month;
-
-
--- 18. State-level performance
-SELECT
-    State,
-    ROUND(SUM(Sales), 2) AS total_sales,
-    ROUND(SUM(Profit), 2) AS total_profit
+    ) AS profit_margin_percentage
 FROM sales
-GROUP BY State
-ORDER BY total_profit DESC
-LIMIT 10;
+GROUP BY ROUND(Discount, 2)
+ORDER BY discount_rate;
 
 
--- 19. Segment performance
-SELECT
-    Segment,
-    ROUND(SUM(Sales), 2) AS total_sales,
-    ROUND(SUM(Profit), 2) AS total_profit,
-    COUNT(DISTINCT "Customer ID") AS customers
-FROM sales
-GROUP BY Segment
-ORDER BY total_profit DESC;
+-- ============================================================
+-- 21. PROFITABILITY BY DISCOUNT CATEGORY
+-- ============================================================
 
-
--- 20. Profitability by discount category
 SELECT
     CASE
         WHEN Discount = 0 THEN '0%'
@@ -247,9 +336,142 @@ SELECT
     ROUND(SUM(Sales), 2) AS total_sales,
     ROUND(SUM(Profit), 2) AS total_profit,
     ROUND(
-        SUM(Profit) / NULLIF(SUM(Sales), 0) * 100,
+        SUM(Profit) * 100.0 / NULLIF(SUM(Sales), 0),
         2
-    ) AS profit_margin_percent
+    ) AS profit_margin_percentage
 FROM sales
 GROUP BY discount_category
 ORDER BY MIN(Discount);
+
+
+-- ============================================================
+-- 22. HIGH-DISCOUNT TRANSACTIONS
+-- ============================================================
+
+SELECT
+    COUNT(*) AS high_discount_transactions,
+    ROUND(SUM(Sales), 2) AS total_sales,
+    ROUND(SUM(Profit), 2) AS total_profit
+FROM sales
+WHERE Discount >= 0.50;
+
+
+-- ============================================================
+-- 23. MONTHLY SALES AND PROFIT
+-- ============================================================
+
+SELECT
+    strftime('%Y-%m', "Order Date") AS month,
+    ROUND(SUM(Sales), 2) AS total_sales,
+    ROUND(SUM(Profit), 2) AS total_profit,
+    SUM(Quantity) AS units_sold,
+    COUNT(DISTINCT "Order ID") AS orders
+FROM sales
+GROUP BY month
+ORDER BY month;
+
+
+-- ============================================================
+-- 24. MONTH-OVER-MONTH SALES GROWTH
+-- ============================================================
+
+WITH monthly_sales AS (
+    SELECT
+        strftime('%Y-%m', "Order Date") AS month,
+        SUM(Sales) AS total_sales
+    FROM sales
+    GROUP BY month
+)
+
+SELECT
+    month,
+    ROUND(total_sales, 2) AS total_sales,
+    ROUND(
+        LAG(total_sales) OVER (ORDER BY month),
+        2
+    ) AS previous_month_sales,
+    ROUND(
+        (
+            total_sales -
+            LAG(total_sales) OVER (ORDER BY month)
+        ) * 100.0 /
+        NULLIF(
+            LAG(total_sales) OVER (ORDER BY month),
+            0
+        ),
+        2
+    ) AS month_over_month_growth_percentage
+FROM monthly_sales
+ORDER BY month;
+
+
+-- ============================================================
+-- 25. YEARLY SALES
+-- ============================================================
+
+SELECT
+    strftime('%Y', "Order Date") AS year,
+    ROUND(SUM(Sales), 2) AS total_sales,
+    ROUND(SUM(Profit), 2) AS total_profit,
+    COUNT(DISTINCT "Order ID") AS orders
+FROM sales
+GROUP BY year
+ORDER BY year;
+
+
+-- ============================================================
+-- 26. PROFITABLE VS LOSS-MAKING ORDERS
+-- ============================================================
+
+WITH order_profit AS (
+    SELECT
+        "Order ID",
+        SUM(Profit) AS order_profit
+    FROM sales
+    GROUP BY "Order ID"
+)
+
+SELECT
+    CASE
+        WHEN order_profit > 0 THEN 'Profitable'
+        WHEN order_profit < 0 THEN 'Loss'
+        ELSE 'Break-even'
+    END AS order_type,
+    COUNT(*) AS number_of_orders
+FROM order_profit
+GROUP BY order_type
+ORDER BY number_of_orders DESC;
+
+
+-- ============================================================
+-- 27. REGION AND CATEGORY PERFORMANCE
+-- ============================================================
+
+SELECT
+    Region,
+    Category,
+    ROUND(SUM(Sales), 2) AS total_sales,
+    ROUND(SUM(Profit), 2) AS total_profit
+FROM sales
+GROUP BY Region, Category
+ORDER BY Region, total_sales DESC;
+
+
+-- ============================================================
+-- 28. DATA QUALITY CHECK
+-- ============================================================
+
+SELECT
+    COUNT(*) AS total_rows,
+    SUM(
+        CASE
+            WHEN "Order ID" IS NULL
+              OR "Customer ID" IS NULL
+              OR "Product ID" IS NULL
+              OR Sales IS NULL
+              OR Profit IS NULL
+            THEN 1
+            ELSE 0
+        END
+    ) AS rows_with_missing_critical_values
+FROM sales;
