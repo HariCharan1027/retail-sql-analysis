@@ -1,16 +1,14 @@
 \# Retail Sales SQL Analysis
 
 
+## Project Overview
 
-\## Project Overview
+This project analyzes retail sales data using **SQL and SQLite** to identify revenue trends, profitability drivers, customer behavior, product performance, regional differences, discount impact, and shipping performance.
 
-
-
-This project analyzes retail sales data using \*\*SQL and SQLite\*\* to identify revenue trends, profitability drivers, customer behavior, product performance, regional differences, discount impact, and shipping performance.
-
-
+The project uses a **Superstore-style retail dataset covering transactions from 2023 to 2026** for analytical and SQL practice purposes.
 
 The project demonstrates practical SQL skills including aggregation, grouping, filtering, date analysis, window functions, profitability calculations, and business-oriented analysis.
+
 
 
 
@@ -166,20 +164,9 @@ The most profitable customer was \*\*Tamara Chand\*\*:
 
 
 
-The largest customer-level loss was \*\*Cindy Stewart\*\*:
-
-
-
-\* Sales: $5,690.06
-
-\* Profit: \*\*-$6,626.39\*\*
-
-\* Orders: 6
-
-
+The customer analysis also identifies customers generating negative profit.
 
 This demonstrates that high sales do not necessarily translate into high profitability.
-
 
 
 \### Regional Performance
@@ -207,8 +194,8 @@ The \*\*West\*\* is the strongest region, while \*\*Central\*\* has the lowest p
 \### Discount Impact
 
 
+Higher discount levels are strongly associated with weaker profitability in this dataset.
 
-The analysis shows a strong relationship between higher discounts and weaker profitability.
 
 
 
@@ -314,39 +301,22 @@ This project uses:
 
 
 
-\## Project Structure
-
-
+## Project Structure
 
 ```text
-
 retail-sql-analysis/
-
 │
-
 ├── data/
-
-│   ├── retail\_sales.db
-
-│   └── sample\_-\_superstore.xls
-
+│   └── .gitkeep
 │
-
 ├── sql/
-
-│   └── 01\_exploration.sql
-
+│   └── 01_exploration.sql
 │
-
 ├── README.md
-
-├── run\_sql.py
-
-├── setup\_database.py
-
+├── requirements.txt
+├── run_sql.py
+├── setup_database.py
 └── .gitignore
-
-```
 
 
 
@@ -392,24 +362,23 @@ cd retail-sql-analysis
 
 
 
-\### 2. Install dependencies
+### 2. Install dependencies
 
-
+Install the required Python packages using the project's dependency file:
 
 ```bash
-
-pip install pandas xlrd
+pip install -r requirements.txt
 
 ```
 
 
 
-\### 3. Prepare the database
+### 3. Prepare the database
 
+Place the Superstore dataset in the `data/` directory with the following filename:
 
-
-Place the Superstore dataset inside the `data/` directory and run:
-
+```text
+data/sample_-_superstore.xls
 
 
 ```bash
@@ -420,14 +389,12 @@ python setup\_database.py
 
 
 
-\### 4. Run SQL analysis
+### 4. Run SQL analysis
 
-
+Execute the SQL analysis script:
 
 ```bash
-
-python run\_sql.py
-
+python run_sql.py
 ```
 
 
